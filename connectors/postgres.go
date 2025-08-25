@@ -93,7 +93,7 @@ func (p *PostgreSQLConnector) Execute(ctx context.Context, operation string, par
 	}
 
 	switch operation {
-	case "insert", "update", "delete":
+	case "insert", "update", "delete", "execute":
 		if query, ok := params["query"].(string); ok {
 			args := make([]interface{}, 0)
 			if argsList, ok := params["args"].([]interface{}); ok {

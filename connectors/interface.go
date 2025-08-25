@@ -3,6 +3,7 @@ package connectors
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 // DBConnector defines the interface that all database connectors must implement
@@ -39,11 +40,70 @@ type ConnectionConfig struct {
 	SSLMode  string `yaml:"ssl_mode,omitempty"`
 }
 
+// Validate checks if the connection configuration is valid
+func (c *ConnectionConfig) Validate() error {
+	if c.Host == "" {
+		return fmt.Errorf("host is required")
+	}
+	if c.Port <= 0 || c.Port > 65535 {
+		return fmt.Errorf("port must be between 1 and 65535")
+	}
+	if c.Database == "" {
+		return fmt.Errorf("database name is required")
+	}
+	return nil
+}
+
+// GetConnectionString generates a connection string for the specified database type
+func (c *ConnectionConfig) GetConnectionString(dbType string) (string, error) {
+	switch dbType {
+	case "mysql":
+		return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", c.Username, c.Password, c.Host, c.Port, c.Database), nil
+	case "postgresql":
+		sslMode := c.SSLMode
+		if sslMode == "" {
+			sslMode = "disable"
+		}
+		return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", 
+			c.Host, c.Port, c.Username, c.Password, c.Database, sslMode), nil
+	case "mongodb":
+		if c.Username != "" && c.Password != "" {
+			return fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", c.Username, c.Password, c.Host, c.Port, c.Database), nil
+		}
+		return fmt.Sprintf("mongodb://%s:%d/%s", c.Host, c.Port, c.Database), nil
+	default:
+		return "", fmt.Errorf("unsupported database type: %s", dbType)
+	}
+}
+
 // DatabaseConfig represents configuration for all supported databases
 type DatabaseConfig struct {
 	MySQL      *ConnectionConfig `yaml:"mysql,omitempty"`
 	PostgreSQL *ConnectionConfig `yaml:"postgresql,omitempty"`
 	MongoDB    *ConnectionConfig `yaml:"mongodb,omitempty"`
+}
+
+// GetConfig returns the connection configuration for the specified database type
+func (dc *DatabaseConfig) GetConfig(dbType string) (*ConnectionConfig, error) {
+	switch dbType {
+	case "mysql":
+		if dc.MySQL == nil {
+			return nil, fmt.Errorf("MySQL configuration not found")
+		}
+		return dc.MySQL, nil
+	case "postgresql":
+		if dc.PostgreSQL == nil {
+			return nil, fmt.Errorf("PostgreSQL configuration not found")
+		}
+		return dc.PostgreSQL, nil
+	case "mongodb":
+		if dc.MongoDB == nil {
+			return nil, fmt.Errorf("MongoDB configuration not found")
+		}
+		return dc.MongoDB, nil
+	default:
+		return nil, fmt.Errorf("unsupported database type: %s", dbType)
+	}
 }
 
 // ConnectorRegistry manages all available database connectors

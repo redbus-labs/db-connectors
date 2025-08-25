@@ -776,7 +776,7 @@ CREATE INDEX idx_%s_status ON %s (status);
 CREATE INDEX idx_%s_maker_id ON %s (maker_id);
 CREATE INDEX idx_%s_approval_status ON %s_approval_requests (status);
 CREATE INDEX idx_%s_approval_maker ON %s_approval_requests (maker_id);
-CREATE INDEX idx_%s_approval_checker ON %s_approval_requests (checker_id);`, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName)
+CREATE INDEX idx_%s_approval_checker ON %s_approval_requests (checker_id);`, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName, tableName)
 		
 	case "mongodb":
 		return fmt.Sprintf(`// MongoDB collection '%s' with sample document:

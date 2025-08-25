@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"db-connectors/connectors"
 	"gopkg.in/yaml.v3"
@@ -17,30 +18,32 @@ type Config struct {
 	AppName   string                    `yaml:"app_name,omitempty"`
 }
 
-// LoadConfig loads configuration from a YAML file
+// LoadConfig loads configuration from a YAML file and environment variables
 func LoadConfig(configPath string) (*Config, error) {
 	if configPath == "" {
 		configPath = "config.yaml"
 	}
 
-	// Check if file exists
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("config file not found: %s", configPath)
-	}
-
-	// Read the config file
-	data, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
-	}
-
-	// Parse YAML
 	var config Config
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, fmt.Errorf("failed to parse config file: %w", err)
+
+	// Try to load from file if it exists
+	if _, err := os.Stat(configPath); err == nil {
+		// Read the config file
+		data, err := ioutil.ReadFile(configPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read config file: %w", err)
+		}
+
+		// Parse YAML
+		if err := yaml.Unmarshal(data, &config); err != nil {
+			return nil, fmt.Errorf("failed to parse config file: %w", err)
+		}
 	}
 
-	// Set defaults
+	// Override/set values from environment variables
+	loadFromEnvironment(&config)
+
+	// Set defaults if not provided
 	if config.LogLevel == "" {
 		config.LogLevel = "info"
 	}
@@ -49,6 +52,145 @@ func LoadConfig(configPath string) (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+// loadFromEnvironment loads configuration values from environment variables
+func loadFromEnvironment(config *Config) {
+	if appName := os.Getenv("APP_NAME"); appName != "" {
+		config.AppName = appName
+	}
+	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
+		config.LogLevel = logLevel
+	}
+
+	// Load MySQL config from environment
+	if host := os.Getenv("MYSQL_HOST"); host != "" {
+		if config.Databases.MySQL == nil {
+			config.Databases.MySQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MySQL.Host = host
+	}
+	if portStr := os.Getenv("MYSQL_PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil {
+			if config.Databases.MySQL == nil {
+				config.Databases.MySQL = &connectors.ConnectionConfig{}
+			}
+			config.Databases.MySQL.Port = port
+		}
+	}
+	if username := os.Getenv("MYSQL_USERNAME"); username != "" {
+		if config.Databases.MySQL == nil {
+			config.Databases.MySQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MySQL.Username = username
+	}
+	if password := os.Getenv("MYSQL_PASSWORD"); password != "" {
+		if config.Databases.MySQL == nil {
+			config.Databases.MySQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MySQL.Password = password
+	}
+	if database := os.Getenv("MYSQL_DATABASE"); database != "" {
+		if config.Databases.MySQL == nil {
+			config.Databases.MySQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MySQL.Database = database
+	}
+
+	// Load PostgreSQL config from environment
+	if host := os.Getenv("POSTGRES_HOST"); host != "" {
+		if config.Databases.PostgreSQL == nil {
+			config.Databases.PostgreSQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.PostgreSQL.Host = host
+	}
+	if portStr := os.Getenv("POSTGRES_PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil {
+			if config.Databases.PostgreSQL == nil {
+				config.Databases.PostgreSQL = &connectors.ConnectionConfig{}
+			}
+			config.Databases.PostgreSQL.Port = port
+		}
+	}
+	if username := os.Getenv("POSTGRES_USERNAME"); username != "" {
+		if config.Databases.PostgreSQL == nil {
+			config.Databases.PostgreSQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.PostgreSQL.Username = username
+	}
+	if password := os.Getenv("POSTGRES_PASSWORD"); password != "" {
+		if config.Databases.PostgreSQL == nil {
+			config.Databases.PostgreSQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.PostgreSQL.Password = password
+	}
+	if database := os.Getenv("POSTGRES_DATABASE"); database != "" {
+		if config.Databases.PostgreSQL == nil {
+			config.Databases.PostgreSQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.PostgreSQL.Database = database
+	}
+	if sslMode := os.Getenv("POSTGRES_SSLMODE"); sslMode != "" {
+		if config.Databases.PostgreSQL == nil {
+			config.Databases.PostgreSQL = &connectors.ConnectionConfig{}
+		}
+		config.Databases.PostgreSQL.SSLMode = sslMode
+	}
+
+	// Load MongoDB config from environment
+	if host := os.Getenv("MONGO_HOST"); host != "" {
+		if config.Databases.MongoDB == nil {
+			config.Databases.MongoDB = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MongoDB.Host = host
+	}
+	if portStr := os.Getenv("MONGO_PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil {
+			if config.Databases.MongoDB == nil {
+				config.Databases.MongoDB = &connectors.ConnectionConfig{}
+			}
+			config.Databases.MongoDB.Port = port
+		}
+	}
+	if username := os.Getenv("MONGO_USERNAME"); username != "" {
+		if config.Databases.MongoDB == nil {
+			config.Databases.MongoDB = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MongoDB.Username = username
+	}
+	if password := os.Getenv("MONGO_PASSWORD"); password != "" {
+		if config.Databases.MongoDB == nil {
+			config.Databases.MongoDB = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MongoDB.Password = password
+	}
+	if database := os.Getenv("MONGO_DATABASE"); database != "" {
+		if config.Databases.MongoDB == nil {
+			config.Databases.MongoDB = &connectors.ConnectionConfig{}
+		}
+		config.Databases.MongoDB.Database = database
+	}
+}
+
+// Validate checks if the configuration is valid
+func (c *Config) Validate() error {
+	if c.AppName == "" {
+		return fmt.Errorf("app name cannot be empty")
+	}
+	
+	validLogLevels := []string{"debug", "info", "warn", "error"}
+	isValidLogLevel := false
+	for _, level := range validLogLevels {
+		if c.LogLevel == level {
+			isValidLogLevel = true
+			break
+		}
+	}
+	if !isValidLogLevel {
+		return fmt.Errorf("invalid log level: %s, must be one of: debug, info, warn, error", c.LogLevel)
+	}
+	
+	return nil
 }
 
 // SaveConfig saves configuration to a YAML file

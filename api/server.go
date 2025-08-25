@@ -59,6 +59,29 @@ func (s *Server) Start() error {
 	return http.ListenAndServe(addr, handler)
 }
 
+// SetupRoutes creates and returns a configured HTTP handler with all routes
+func SetupRoutes(apiInstance *API) http.Handler {
+	mux := http.NewServeMux()
+
+	// Register routes
+	mux.HandleFunc("/health", apiInstance.HealthHandler)
+	mux.HandleFunc("/test-connection", apiInstance.TestConnectionHandler)
+	mux.HandleFunc("/execute", apiInstance.ExecuteOperationHandler)
+	mux.HandleFunc("/allconfig", apiInstance.AllConfigHandler)
+	mux.HandleFunc("/allconfig-operation", apiInstance.AllConfigOperationHandler)
+	
+	// Swagger documentation routes
+	server := &Server{api: apiInstance, port: 8080} // port doesn't matter for tests
+	mux.HandleFunc("/", server.DocumentationIndexHandler)
+	mux.HandleFunc("/docs", server.SwaggerHandler)
+	mux.HandleFunc("/docs/", server.SwaggerHandler)
+	mux.HandleFunc("/swagger.json", server.SwaggerJSONHandler)
+	mux.HandleFunc("/swagger.yaml", server.SwaggerYAMLHandler)
+
+	// Add CORS middleware
+	return server.corsMiddleware(mux)
+}
+
 // corsMiddleware adds CORS headers
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
