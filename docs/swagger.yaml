@@ -1,0 +1,837 @@
+openapi: 3.0.3
+info:
+  title: Database Connectors API
+  description: |
+    A unified API for connecting to multiple database types (MySQL, PostgreSQL, MongoDB) with 
+    configuration management and maker-checker approval workflow.
+    
+    ## Features
+    - Multi-database support (MySQL, PostgreSQL, MongoDB)
+    - Dynamic database connections
+    - Configuration management with approval workflow
+    - CRUD operations with maker-checker process
+    - Comprehensive audit trail
+    
+    ## Maker-Checker Workflow
+    The API implements a maker-checker approval process where:
+    1. **Makers** submit configuration changes for approval
+    2. Changes are stored in pending state (not visible in read operations)
+    3. **Checkers** review and either approve or reject changes
+    4. Only **approved changes** become visible in read operations
+    
+  version: 1.0.0
+  contact:
+    name: Database Connectors API
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check operations
+  - name: Database Connection
+    description: Database connection testing
+  - name: Database Operations
+    description: General database operations
+  - name: AllConfig Management
+    description: Configuration table management
+  - name: Maker-Checker Workflow
+    description: Configuration approval workflow
+  - name: Admin Operations
+    description: Administrative operations
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check if the API service is running and healthy
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: "Service is healthy"
+                data:
+                  status: "healthy"
+                  service: "db-connectors-api"
+                  version: "1.0.0"
+                timestamp: "2024-01-01T12:00:00Z"
+
+  /test-connection:
+    post:
+      tags:
+        - Database Connection
+      summary: Test database connection
+      description: Test if you can connect to a database with provided credentials
+      operationId: testConnection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseConnectionRequest'
+            examples:
+              mysql:
+                summary: MySQL connection
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+              postgresql:
+                summary: PostgreSQL connection
+                value:
+                  type: "postgresql"
+                  host: "localhost"
+                  port: 5432
+                  username: "postgres"
+                  password: "password"
+                  database: "testdb"
+                  ssl_mode: "disable"
+              mongodb:
+                summary: MongoDB connection
+                value:
+                  type: "mongodb"
+                  host: "localhost"
+                  port: 27017
+                  username: "admin"
+                  password: "password"
+                  database: "testdb"
+      responses:
+        '200':
+          description: Connection successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: "Database connection successful"
+                data:
+                  connection_status: "success"
+                  database_type: "mysql"
+                  connected: true
+        '400':
+          description: Bad request - Invalid connection parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Connection failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /execute:
+    post:
+      tags:
+        - Database Operations
+      summary: Execute database operations
+      description: Execute various database operations (query, insert, update, delete)
+      operationId: executeOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseOperationRequest'
+            examples:
+              mysql_select:
+                summary: MySQL SELECT query
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "query"
+                  query: "SELECT * FROM users WHERE age > ?"
+                  args: [18]
+              postgresql_insert:
+                summary: PostgreSQL INSERT
+                value:
+                  type: "postgresql"
+                  host: "localhost"
+                  port: 5432
+                  username: "postgres"
+                  password: "password"
+                  database: "testdb"
+                  ssl_mode: "disable"
+                  operation: "insert"
+                  query: "INSERT INTO users (name, email) VALUES ($1, $2)"
+                  args: ["John Doe", "john@example.com"]
+              mongodb_find:
+                summary: MongoDB find operation
+                value:
+                  type: "mongodb"
+                  host: "localhost"
+                  port: 27017
+                  username: "admin"
+                  password: "password"
+                  database: "testdb"
+                  operation: "find"
+                  params:
+                    collection: "users"
+                    filter: {"age": {"$gt": 18}}
+                    limit: 10
+      responses:
+        '200':
+          description: Operation executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /allconfig:
+    post:
+      tags:
+        - AllConfig Management
+      summary: Check AllConfig table
+      description: Check if the allconfig table exists and get information about it
+      operationId: checkAllConfigTable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllConfigRequest'
+            examples:
+              check_default:
+                summary: Check default allconfig table
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+              check_custom:
+                summary: Check custom table name
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  table_name: "my_config_table"
+      responses:
+        '200':
+          description: Table check completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                table_exists:
+                  summary: Table exists
+                  value:
+                    success: true
+                    message: "AllConfig table check completed"
+                    data:
+                      table_name: "allconfig"
+                      table_exists: true
+                      database_type: "mysql"
+                      table_structure: []
+                      config_count: 5
+                table_not_exists:
+                  summary: Table doesn't exist
+                  value:
+                    success: true
+                    message: "AllConfig table check completed"
+                    data:
+                      table_name: "allconfig"
+                      table_exists: false
+                      database_type: "mysql"
+                      create_table_sql: "CREATE TABLE allconfig (...)"
+
+  /allconfig-operation:
+    post:
+      tags:
+        - Maker-Checker Workflow
+        - Admin Operations
+      summary: Perform AllConfig operations
+      description: |
+        Perform various operations on the AllConfig table including:
+        
+        **Maker Operations:**
+        - `submit_create` - Submit new configuration for approval
+        - `submit_update` - Submit configuration update for approval
+        - `submit_delete` - Submit configuration deletion for approval
+        - `get_my_requests` - Get maker's request history
+        
+        **Checker Operations:**
+        - `get_pending_approvals` - Get all pending approval requests
+        - `approve_request` - Approve a pending request
+        - `reject_request` - Reject a pending request
+        - `get_approval_history` - Get approval history
+        
+        **Read Operations (Approved Only):**
+        - `read` - Read single approved configuration
+        - `read_all` - Read all approved configurations
+        - `search` - Search approved configurations
+        - `filter` - Filter approved configurations
+        - `count` - Count approved configurations
+        - `exists` - Check if approved configuration exists
+        
+        **Admin Operations:**
+        - `read_all_admin` - Read all configurations (including pending)
+        - `search_admin` - Search all configurations (including pending)
+        - `direct_create` - Create configuration directly (bypass approval)
+        - `direct_update` - Update configuration directly (bypass approval)
+        - `direct_delete` - Delete configuration directly (bypass approval)
+        - `create_table` - Create AllConfig table
+        - `drop_table` - Drop AllConfig table
+        
+      operationId: allConfigOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllConfigOperationRequest'
+            examples:
+              submit_create:
+                summary: Submit new configuration (Maker)
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "submit_create"
+                  key: "api_base_url"
+                  value: "https://api.example.com"
+                  description: "Base URL for API endpoints"
+                  maker_id: "developer001"
+              
+              approve_request:
+                summary: Approve pending request (Checker)
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "approve_request"
+                  request_id: "f47ac10b58cc4372a5670e02b2c3d479"
+                  checker_id: "admin001"
+                  approval_comment: "Approved for production"
+              
+              read_all:
+                summary: Read all approved configurations
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "read_all"
+                  limit: 20
+                  offset: 0
+              
+              get_pending_approvals:
+                summary: Get pending approvals (Checker)
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "get_pending_approvals"
+                  limit: 10
+              
+              batch_create:
+                summary: Submit multiple configurations (Maker)
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "submit_create_batch"
+                  config_items:
+                    - key: "app_name"
+                      value: "My Application"
+                      description: "Application name"
+                    - key: "version"
+                      value: "1.0.0"
+                      description: "Application version"
+                  maker_id: "developer001"
+              
+              search_configs:
+                summary: Search approved configurations
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "search"
+                  search_term: "api"
+                  limit: 10
+              
+              direct_create_admin:
+                summary: Create configuration directly (Admin)
+                value:
+                  type: "mysql"
+                  host: "localhost"
+                  port: 3306
+                  username: "root"
+                  password: "password"
+                  database: "testdb"
+                  operation: "direct_create"
+                  key: "emergency_mode"
+                  value: "false"
+                  description: "Emergency mode flag"
+                  maker_id: "admin001"
+      
+      responses:
+        '200':
+          description: Operation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                submit_success:
+                  summary: Configuration submitted for approval
+                  value:
+                    success: true
+                    message: "AllConfig operation 'submit_create' completed"
+                    data:
+                      request_id: "f47ac10b58cc4372a5670e02b2c3d479"
+                      status: "submitted_for_approval"
+                      operation: "create"
+                      config_key: "api_base_url"
+                      maker_id: "developer001"
+                
+                approval_success:
+                  summary: Request approved successfully
+                  value:
+                    success: true
+                    message: "AllConfig operation 'approve_request' completed"
+                    data:
+                      request_id: "f47ac10b58cc4372a5670e02b2c3d479"
+                      status: "approved"
+                      checker_id: "admin001"
+                      approval_comment: "Approved for production"
+                      applied_result: {}
+                
+                read_all_success:
+                  summary: Read all configurations
+                  value:
+                    success: true
+                    message: "AllConfig operation 'read_all' completed"
+                    data:
+                      - config_key: "api_base_url"
+                        config_value: "https://api.example.com"
+                        description: "Base URL for API endpoints"
+                        status: "approved"
+                        maker_id: "developer001"
+                        checker_id: "admin001"
+                        created_at: "2024-01-01T10:00:00Z"
+                        approved_at: "2024-01-01T11:00:00Z"
+                
+                pending_approvals:
+                  summary: Pending approval requests
+                  value:
+                    success: true
+                    message: "AllConfig operation 'get_pending_approvals' completed"
+                    data:
+                      - request_id: "f47ac10b58cc4372a5670e02b2c3d479"
+                        config_key: "new_feature_flag"
+                        config_value: "true"
+                        description: "Enable new feature"
+                        operation: "create"
+                        maker_id: "developer002"
+                        requested_at: "2024-01-01T12:00:00Z"
+        
+        '400':
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: "config key and maker_id are required for submit_create operation"
+                timestamp: "2024-01-01T12:00:00Z"
+        
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    DatabaseConnectionRequest:
+      type: object
+      required:
+        - type
+        - host
+        - port
+        - database
+      properties:
+        type:
+          type: string
+          enum: [mysql, postgresql, mongodb]
+          description: Type of database
+          example: "mysql"
+        host:
+          type: string
+          description: Database host
+          example: "localhost"
+        port:
+          type: integer
+          description: Database port
+          example: 3306
+        username:
+          type: string
+          description: Database username
+          example: "root"
+        password:
+          type: string
+          description: Database password
+          example: "password"
+        database:
+          type: string
+          description: Database name
+          example: "testdb"
+        ssl_mode:
+          type: string
+          description: SSL mode for PostgreSQL
+          example: "disable"
+
+    DatabaseOperationRequest:
+      allOf:
+        - $ref: '#/components/schemas/DatabaseConnectionRequest'
+        - type: object
+          required:
+            - operation
+          properties:
+            operation:
+              type: string
+              description: Database operation to perform
+              enum: [query, select, insert, update, delete, execute, find, findOne, count]
+              example: "query"
+            query:
+              type: string
+              description: SQL query (for SQL databases)
+              example: "SELECT * FROM users WHERE age > ?"
+            args:
+              type: array
+              items:
+                type: string
+              description: Query arguments for SQL databases
+              example: [18]
+            params:
+              type: object
+              description: Parameters for MongoDB operations
+              example:
+                collection: "users"
+                filter: {"age": {"$gt": 18}}
+                limit: 10
+
+    AllConfigRequest:
+      allOf:
+        - $ref: '#/components/schemas/DatabaseConnectionRequest'
+        - type: object
+          properties:
+            table_name:
+              type: string
+              description: Custom table name for allconfig (defaults to 'allconfig')
+              example: "my_config_table"
+
+    AllConfigOperationRequest:
+      allOf:
+        - $ref: '#/components/schemas/AllConfigRequest'
+        - type: object
+          required:
+            - operation
+          properties:
+            operation:
+              type: string
+              description: AllConfig operation to perform
+              enum: 
+                # Maker operations
+                - submit_create
+                - submit_update
+                - submit_delete
+                - get_my_requests
+                # Checker operations
+                - get_pending_approvals
+                - approve_request
+                - reject_request
+                - get_approval_history
+                # Read operations (approved only)
+                - read
+                - read_all
+                - search
+                - filter
+                - count
+                - exists
+                # Admin operations
+                - read_all_admin
+                - search_admin
+                - direct_create
+                - direct_update
+                - direct_delete
+                - create_table
+                - drop_table
+              example: "submit_create"
+            key:
+              type: string
+              description: Configuration key
+              example: "api_base_url"
+            value:
+              description: Configuration value
+              example: "https://api.example.com"
+            description:
+              type: string
+              description: Configuration description
+              example: "Base URL for API endpoints"
+            maker_id:
+              type: string
+              description: ID of user making the change
+              example: "developer001"
+            checker_id:
+              type: string
+              description: ID of user approving the change
+              example: "admin001"
+            approval_comment:
+              type: string
+              description: Comment for approval/rejection
+              example: "Approved for production"
+            request_id:
+              type: string
+              description: ID of pending request for approval
+              example: "f47ac10b58cc4372a5670e02b2c3d479"
+            config_items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConfigItem'
+              description: Array of config items for batch operations
+            search_term:
+              type: string
+              description: Search term for filtering
+              example: "api"
+            filter:
+              type: object
+              description: Filter criteria
+              example:
+                status: "approved"
+            limit:
+              type: integer
+              description: Limit results
+              example: 10
+            offset:
+              type: integer
+              description: Offset for pagination
+              example: 0
+
+    ConfigItem:
+      type: object
+      required:
+        - key
+      properties:
+        key:
+          type: string
+          description: Configuration key
+          example: "app_name"
+        value:
+          description: Configuration value
+          example: "My Application"
+        description:
+          type: string
+          description: Configuration description
+          example: "Application name"
+        maker_id:
+          type: string
+          description: ID of user making the change
+          example: "developer001"
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+        data:
+          description: Response data
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-01T12:00:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid request parameters"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-01T12:00:00Z"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+    
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+# Example usage patterns
+x-code-samples:
+  - lang: 'curl'
+    label: 'Test MySQL Connection'
+    source: |
+      curl -X POST http://localhost:8080/test-connection \
+        -H "Content-Type: application/json" \
+        -d '{
+          "type": "mysql",
+          "host": "localhost",
+          "port": 3306,
+          "username": "root",
+          "password": "password",
+          "database": "testdb"
+        }'
+  
+  - lang: 'curl'
+    label: 'Submit Configuration for Approval'
+    source: |
+      curl -X POST http://localhost:8080/allconfig-operation \
+        -H "Content-Type: application/json" \
+        -d '{
+          "type": "mysql",
+          "host": "localhost",
+          "port": 3306,
+          "username": "root",
+          "password": "password",
+          "database": "testdb",
+          "operation": "submit_create",
+          "key": "api_url",
+          "value": "https://api.example.com",
+          "description": "API endpoint URL",
+          "maker_id": "developer001"
+        }'
+  
+  - lang: 'curl'
+    label: 'Approve Configuration Request'
+    source: |
+      curl -X POST http://localhost:8080/allconfig-operation \
+        -H "Content-Type: application/json" \
+        -d '{
+          "type": "mysql",
+          "host": "localhost",
+          "port": 3306,
+          "username": "root",
+          "password": "password",
+          "database": "testdb",
+          "operation": "approve_request",
+          "request_id": "f47ac10b58cc4372a5670e02b2c3d479",
+          "checker_id": "admin001",
+          "approval_comment": "Approved for production"
+        }'
+
+  - lang: 'javascript'
+    label: 'JavaScript/Node.js Example'
+    source: |
+      const response = await fetch('http://localhost:8080/allconfig-operation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'mysql',
+          host: 'localhost',
+          port: 3306,
+          username: 'root',
+          password: 'password',
+          database: 'testdb',
+          operation: 'read_all',
+          limit: 10
+        })
+      });
+      
+      const data = await response.json();
+      console.log(data);
+
+  - lang: 'python'
+    label: 'Python Example'
+    source: |
+      import requests
+      
+      payload = {
+          "type": "mysql",
+          "host": "localhost",
+          "port": 3306,
+          "username": "root",
+          "password": "password",
+          "database": "testdb",
+          "operation": "read_all",
+          "limit": 10
+      }
+      
+      response = requests.post(
+          'http://localhost:8080/allconfig-operation',
+          json=payload
+      )
+      
+      print(response.json())

@@ -1,0 +1,627 @@
+{
+  "info": {
+    "name": "Database Connectors API",
+    "description": "Complete Postman collection for testing the Database Connectors API with maker-checker workflow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "mysql_host",
+      "value": "localhost",
+      "type": "string"
+    },
+    {
+      "key": "mysql_port",
+      "value": "3306",
+      "type": "string"
+    },
+    {
+      "key": "mysql_username",
+      "value": "root",
+      "type": "string"
+    },
+    {
+      "key": "mysql_password",
+      "value": "password",
+      "type": "string"
+    },
+    {
+      "key": "mysql_database",
+      "value": "testdb",
+      "type": "string"
+    },
+    {
+      "key": "request_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Connection",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the API service is running and healthy"
+          }
+        },
+        {
+          "name": "Test MySQL Connection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/test-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["test-connection"]
+            },
+            "description": "Test MySQL database connection"
+          }
+        },
+        {
+          "name": "Test PostgreSQL Connection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"postgresql\",\n  \"host\": \"localhost\",\n  \"port\": 5432,\n  \"username\": \"postgres\",\n  \"password\": \"password\",\n  \"database\": \"testdb\",\n  \"ssl_mode\": \"disable\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/test-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["test-connection"]
+            },
+            "description": "Test PostgreSQL database connection"
+          }
+        },
+        {
+          "name": "Test MongoDB Connection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mongodb\",\n  \"host\": \"localhost\",\n  \"port\": 27017,\n  \"username\": \"admin\",\n  \"password\": \"password\",\n  \"database\": \"testdb\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/test-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["test-connection"]
+            },
+            "description": "Test MongoDB database connection"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Database Operations",
+      "item": [
+        {
+          "name": "MySQL SELECT Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"query\",\n  \"query\": \"SELECT 1 as test_value\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/execute",
+              "host": ["{{baseUrl}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute a simple SELECT query on MySQL"
+          }
+        },
+        {
+          "name": "MongoDB Find Operation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mongodb\",\n  \"host\": \"localhost\",\n  \"port\": 27017,\n  \"username\": \"admin\",\n  \"password\": \"password\",\n  \"database\": \"testdb\",\n  \"operation\": \"find\",\n  \"params\": {\n    \"collection\": \"test_collection\",\n    \"filter\": {},\n    \"limit\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/execute",
+              "host": ["{{baseUrl}}"],
+              "path": ["execute"]
+            },
+            "description": "Execute a find operation on MongoDB"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AllConfig Management",
+      "item": [
+        {
+          "name": "Check AllConfig Table",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig"]
+            },
+            "description": "Check if AllConfig table exists"
+          }
+        },
+        {
+          "name": "Create AllConfig Table",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"create_table\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Create AllConfig table with maker-checker schema"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Maker Operations",
+      "item": [
+        {
+          "name": "Submit New Configuration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.request_id) {",
+                  "        pm.collectionVariables.set('request_id', response.data.request_id);",
+                  "        console.log('Request ID saved: ' + response.data.request_id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"submit_create\",\n  \"key\": \"api_base_url\",\n  \"value\": \"https://api.example.com\",\n  \"description\": \"Base URL for API endpoints\",\n  \"maker_id\": \"developer001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Submit new configuration for approval (saves request_id to variable)"
+          }
+        },
+        {
+          "name": "Submit Configuration Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"submit_update\",\n  \"key\": \"max_connections\",\n  \"value\": \"200\",\n  \"description\": \"Increased max connections for high traffic\",\n  \"maker_id\": \"developer001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Submit configuration update for approval"
+          }
+        },
+        {
+          "name": "Submit Configuration Deletion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"submit_delete\",\n  \"key\": \"deprecated_setting\",\n  \"description\": \"Removing deprecated configuration\",\n  \"maker_id\": \"developer001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Submit configuration deletion for approval"
+          }
+        },
+        {
+          "name": "Get My Requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"get_my_requests\",\n  \"maker_id\": \"developer001\",\n  \"limit\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Get all requests made by a specific maker"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checker Operations",
+      "item": [
+        {
+          "name": "Get Pending Approvals",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"get_pending_approvals\",\n  \"limit\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Get all pending approval requests"
+          }
+        },
+        {
+          "name": "Approve Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"approve_request\",\n  \"request_id\": \"{{request_id}}\",\n  \"checker_id\": \"admin001\",\n  \"approval_comment\": \"Approved for production\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Approve a pending request (uses saved request_id variable)"
+          }
+        },
+        {
+          "name": "Reject Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"reject_request\",\n  \"request_id\": \"{{request_id}}\",\n  \"checker_id\": \"admin001\",\n  \"approval_comment\": \"Rejected - needs more testing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Reject a pending request"
+          }
+        },
+        {
+          "name": "Get Approval History",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"get_approval_history\",\n  \"limit\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Get history of all processed approval requests"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read Operations (Approved Only)",
+      "item": [
+        {
+          "name": "Read All Configurations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"read_all\",\n  \"limit\": 20,\n  \"offset\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Read all approved configurations (pending ones are hidden)"
+          }
+        },
+        {
+          "name": "Read Specific Configuration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"read\",\n  \"key\": \"api_base_url\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Read a specific approved configuration"
+          }
+        },
+        {
+          "name": "Search Configurations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"search\",\n  \"search_term\": \"api\",\n  \"limit\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Search approved configurations by term"
+          }
+        },
+        {
+          "name": "Count Configurations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"count\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Count approved configurations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Operations",
+      "item": [
+        {
+          "name": "Read All (Including Pending)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"read_all_admin\",\n  \"limit\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Admin view - read all configurations including pending ones"
+          }
+        },
+        {
+          "name": "Direct Create (Bypass Approval)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"direct_create\",\n  \"key\": \"emergency_mode\",\n  \"value\": \"false\",\n  \"description\": \"Emergency mode flag\",\n  \"maker_id\": \"admin001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Admin operation - create configuration directly (bypasses approval)"
+          }
+        },
+        {
+          "name": "Direct Update (Bypass Approval)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"mysql\",\n  \"host\": \"{{mysql_host}}\",\n  \"port\": {{mysql_port}},\n  \"username\": \"{{mysql_username}}\",\n  \"password\": \"{{mysql_password}}\",\n  \"database\": \"{{mysql_database}}\",\n  \"operation\": \"direct_update\",\n  \"key\": \"emergency_mode\",\n  \"value\": \"true\",\n  \"description\": \"Emergency mode enabled\",\n  \"maker_id\": \"admin001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/allconfig-operation",
+              "host": ["{{baseUrl}}"],
+              "path": ["allconfig-operation"]
+            },
+            "description": "Admin operation - update configuration directly (bypasses approval)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documentation",
+      "item": [
+        {
+          "name": "Get Swagger JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/swagger.json",
+              "host": ["{{baseUrl}}"],
+              "path": ["swagger.json"]
+            },
+            "description": "Get OpenAPI specification in JSON format"
+          }
+        },
+        {
+          "name": "Get Swagger YAML",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/swagger.yaml",
+              "host": ["{{baseUrl}}"],
+              "path": ["swagger.yaml"]
+            },
+            "description": "Get OpenAPI specification in YAML format"
+          }
+        }
+      ]
+    }
+  ]
+}

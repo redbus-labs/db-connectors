@@ -1,0 +1,399 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Database Connectors API",
+    "description": "A unified API for connecting to multiple database types (MySQL, PostgreSQL, MongoDB) with configuration management and maker-checker approval workflow.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Database Connectors API",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {"name": "Health", "description": "Health check operations"},
+    {"name": "Database Connection", "description": "Database connection testing"},
+    {"name": "Database Operations", "description": "General database operations"},
+    {"name": "AllConfig Management", "description": "Configuration table management"},
+    {"name": "Maker-Checker Workflow", "description": "Configuration approval workflow"},
+    {"name": "Admin Operations", "description": "Administrative operations"}
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Check if the API service is running and healthy",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SuccessResponse"},
+                "example": {
+                  "success": true,
+                  "message": "Service is healthy",
+                  "data": {
+                    "status": "healthy",
+                    "service": "db-connectors-api",
+                    "version": "1.0.0"
+                  },
+                  "timestamp": "2024-01-01T12:00:00Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test-connection": {
+      "post": {
+        "tags": ["Database Connection"],
+        "summary": "Test database connection",
+        "description": "Test if you can connect to a database with provided credentials",
+        "operationId": "testConnection",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/DatabaseConnectionRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connection successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SuccessResponse"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          },
+          "500": {
+            "description": "Connection failed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/execute": {
+      "post": {
+        "tags": ["Database Operations"],
+        "summary": "Execute database operations",
+        "description": "Execute various database operations (query, insert, update, delete)",
+        "operationId": "executeOperation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/DatabaseOperationRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SuccessResponse"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          },
+          "500": {
+            "description": "Operation failed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/allconfig": {
+      "post": {
+        "tags": ["AllConfig Management"],
+        "summary": "Check AllConfig table",
+        "description": "Check if the allconfig table exists and get information about it",
+        "operationId": "checkAllConfigTable",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/AllConfigRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Table check completed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SuccessResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/allconfig-operation": {
+      "post": {
+        "tags": ["Maker-Checker Workflow", "Admin Operations"],
+        "summary": "Perform AllConfig operations",
+        "description": "Perform various operations on the AllConfig table including maker-checker workflow operations",
+        "operationId": "allConfigOperation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/AllConfigOperationRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SuccessResponse"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DatabaseConnectionRequest": {
+        "type": "object",
+        "required": ["type", "host", "port", "database"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["mysql", "postgresql", "mongodb"],
+            "description": "Type of database"
+          },
+          "host": {
+            "type": "string",
+            "description": "Database host"
+          },
+          "port": {
+            "type": "integer",
+            "description": "Database port"
+          },
+          "username": {
+            "type": "string",
+            "description": "Database username"
+          },
+          "password": {
+            "type": "string",
+            "description": "Database password"
+          },
+          "database": {
+            "type": "string",
+            "description": "Database name"
+          },
+          "ssl_mode": {
+            "type": "string",
+            "description": "SSL mode for PostgreSQL"
+          }
+        }
+      },
+      "DatabaseOperationRequest": {
+        "allOf": [
+          {"$ref": "#/components/schemas/DatabaseConnectionRequest"},
+          {
+            "type": "object",
+            "required": ["operation"],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "description": "Database operation to perform"
+              },
+              "query": {
+                "type": "string",
+                "description": "SQL query (for SQL databases)"
+              },
+              "args": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Query arguments for SQL databases"
+              },
+              "params": {
+                "type": "object",
+                "description": "Parameters for MongoDB operations"
+              }
+            }
+          }
+        ]
+      },
+      "AllConfigRequest": {
+        "allOf": [
+          {"$ref": "#/components/schemas/DatabaseConnectionRequest"},
+          {
+            "type": "object",
+            "properties": {
+              "table_name": {
+                "type": "string",
+                "description": "Custom table name for allconfig"
+              }
+            }
+          }
+        ]
+      },
+      "AllConfigOperationRequest": {
+        "allOf": [
+          {"$ref": "#/components/schemas/AllConfigRequest"},
+          {
+            "type": "object",
+            "required": ["operation"],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "description": "AllConfig operation to perform"
+              },
+              "key": {
+                "type": "string",
+                "description": "Configuration key"
+              },
+              "value": {
+                "description": "Configuration value"
+              },
+              "description": {
+                "type": "string",
+                "description": "Configuration description"
+              },
+              "maker_id": {
+                "type": "string",
+                "description": "ID of user making the change"
+              },
+              "checker_id": {
+                "type": "string",
+                "description": "ID of user approving the change"
+              },
+              "approval_comment": {
+                "type": "string",
+                "description": "Comment for approval/rejection"
+              },
+              "request_id": {
+                "type": "string",
+                "description": "ID of pending request for approval"
+              }
+            }
+          }
+        ]
+      },
+      "ConfigItem": {
+        "type": "object",
+        "required": ["key"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Configuration key"
+          },
+          "value": {
+            "description": "Configuration value"
+          },
+          "description": {
+            "type": "string",
+            "description": "Configuration description"
+          },
+          "maker_id": {
+            "type": "string",
+            "description": "ID of user making the change"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "description": "Response data"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T12:00:00Z"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Invalid request parameters"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T12:00:00Z"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+app_name: "db-connectors"
+log_level: "info"
+
+databases:
+  mysql:
+    host: "localhost"
+    port: 3306
+    username: "root"
+    password: "password"
+    database: "testdb"
+    
+  postgresql:
+    host: "localhost"
+    port: 5432
+    username: "postgres"
+    password: "password"
+    database: "testdb"
+    ssl_mode: "disable"
+    
+  mongodb:
+    host: "localhost"
+    port: 27017
+    username: "admin"        # Optional - can be omitted for no-auth setups
+    password: "password"     # Optional - can be omitted for no-auth setups  
+    database: "testdb"

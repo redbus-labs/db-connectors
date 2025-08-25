@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Connectors API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .card p {
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+        
+        .features {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feature {
+            padding: 1rem;
+            border-left: 4px solid #667eea;
+            background: #f8f9ff;
+            border-radius: 5px;
+        }
+        
+        .feature h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .workflow {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .workflow h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: bold;
+        }
+        
+        .step h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .step p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Connectors API</h1>
+            <p>Unified API for multiple databases with maker-checker approval workflow</p>
+            <span class="badge">v1.0.0</span>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h3>📚 Interactive Documentation</h3>
+                <p>Explore the complete API documentation with interactive examples using Swagger UI.</p>
+                <a href="/docs" class="btn">View Swagger UI</a>
+            </div>
+            
+            <div class="card">
+                <h3>📄 OpenAPI Specification</h3>
+                <p>Download the complete OpenAPI 3.0 specification in JSON or YAML format.</p>
+                <a href="/swagger.json" class="btn">JSON Spec</a>
+                <a href="/swagger.yaml" class="btn" style="margin-left: 0.5rem;">YAML Spec</a>
+            </div>
+            
+            <div class="card">
+                <h3>🧪 Postman Collection</h3>
+                <p>Import the complete Postman collection for easy API testing and exploration.</p>
+                <a href="postman_collection.json" class="btn" download>Download Collection</a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h2>🚀 Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature">
+                    <h4>Multi-Database Support</h4>
+                    <p>Connect to MySQL, PostgreSQL, and MongoDB with a unified interface</p>
+                </div>
+                <div class="feature">
+                    <h4>Maker-Checker Workflow</h4>
+                    <p>Enterprise-grade approval process for configuration changes</p>
+                </div>
+                <div class="feature">
+                    <h4>Dynamic Connections</h4>
+                    <p>Connect to any database without pre-configuration</p>
+                </div>
+                <div class="feature">
+                    <h4>Complete Audit Trail</h4>
+                    <p>Track who made changes, when, and who approved them</p>
+                </div>
+                <div class="feature">
+                    <h4>CRUD Operations</h4>
+                    <p>Full create, read, update, delete operations with approval</p>
+                </div>
+                <div class="feature">
+                    <h4>RESTful API</h4>
+                    <p>Clean, consistent REST API with comprehensive error handling</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="workflow">
+            <h2>🔄 Maker-Checker Workflow</h2>
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Maker Submits</h4>
+                    <p>Developer submits configuration change for approval</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Stored as Pending</h4>
+                    <p>Change is stored but not visible in read operations</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Checker Reviews</h4>
+                    <p>Administrator reviews the pending change</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4>Decision Made</h4>
+                    <p>Change is either approved or rejected with comments</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h4>Goes Live</h4>
+                    <p>Approved changes become visible in all read operations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
